@@ -1,47 +1,10 @@
-# FitnessCoach — n8n Workflow → App
+# FitnessCoach — workflow contract
 
-Turns a working n8n workflow into a deployed, testable web app. One pipeline, four phases — copy this file's pattern for the next workflow app too.
-
-## Prerequisites (one-time)
-- Connect the n8n MCP server (`/mcp` or `claude mcp add`) so workflows can be inspected and test-executed directly.
-- Connect the GitHub MCP server for repo creation/push.
-- Vercel account/CLI available for deployment (not MCP-based).
-
-## Phases
-
-### 1. Workflow audit (n8n MCP)
-- Inspect the trigger node: confirm it's webhook-callable and document the exact expected input shape.
-- Trace to the final node and document the exact output shape returned to the caller.
-- Test-execute the workflow via n8n MCP with representative input; confirm success *and* failure responses are well-formed JSON.
-- Fix issues in n8n itself, not by working around them in the front end.
-- Don't move to Phase 2 until the webhook is reliable in both success and error cases.
-
-### 2. Front end (Next.js)
-- Scaffold with Next.js (App Router). Call the webhook from a **server route handler** (`app/api/chat/route.ts`), not from the browser.
-  - *Revised 2026-10-02 — this replaced an earlier "call the webhook directly from the client, no backend proxy" rule.* The proxy keeps the webhook URL out of the client bundle, makes CORS irrelevant, lets a shared secret be added without shipping it to the browser, and at deploy time means only the server needs to reach the n8n tunnel rather than every visitor.
-  - The env var therefore has **no** `NEXT_PUBLIC_` prefix. Never put secrets in `NEXT_PUBLIC_*` vars — anything so prefixed is in the bundle and public.
-- Mirror the workflow's own input validation in the route handler so the ordinary mistake costs no round trip, but treat n8n as the real gate.
-- Always set an explicit fetch timeout. Node's `fetch` has none, so without one a wedged upstream hangs the request forever. Measure a real response before picking the number.
-- Scope the UI to: collect input → call webhook → render output → handle loading/error states. Don't build UI for data the workflow doesn't actually return yet.
-- If the workflow is driven by an LLM, assume the response is **markdown** and render it as such — but with raw HTML disabled.
-- Use the `frontend-design` skill for UI/aesthetic decisions rather than defaulting to generic styling.
-
-### 3. Local testing
-- Run `next dev` and test the full round trip against the real (or staging) n8n instance — no mocked responses.
-- Explicitly test the failure path: workflow error, timeout, malformed input.
-
-### 4. Ship (GitHub MCP + Vercel)
-- `git init`, create the GitHub repo via GitHub MCP, push.
-- Connect the repo to Vercel, set required env vars, deploy.
-- Smoke-test the deployed URL against the live webhook before calling it done.
-
-## Conventions
-- Each workflow-app gets its own folder (this one: `FitnessCoach/`) with this same CLAUDE.md pattern.
-- **Inside it, workflow concerns and app code stay separate:**
-  - `<Name>/` — `CLAUDE.md`, and `.env` holding `N8N_API_URL` / `N8N_API_KEY` for MCP work only.
-  - `<Name>/web/` — the Next.js app, with its own `.env.local` for runtime config and a committed `.env.example`. On Vercel, set Root Directory to `web`.
-- Inside `web/`: `app/` routes, `components/<domain>/`, `hooks/`, `lib/` (pure logic — types, domain math, storage, fetch client). Keep domain rules in `lib/` as pure functions so they're readable and testable without a browser.
-- Package manager: npm.
+See the root [`CLAUDE.md`](../CLAUDE.md) (`n8n_claude_automation/CLAUDE.md`)
+for the shared pipeline (the four phases), folder conventions, and
+prerequisites — those apply to every workflow-app in this workspace and are
+no longer duplicated here. This file holds only what's specific to Fitness
+Coach: its workflow contract, its memory/session handling, and its status.
 
 ## Fitness Coach workflow contract (confirmed 2026-10-02)
 - A **conversational JSON API**: generic `Webhook` in, plain-text answer out, with per-session conversation memory.
