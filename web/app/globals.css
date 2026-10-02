@@ -1,0 +1,263 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Tokens. Near-black void ground, one committed indigo accent. Everything
+   else is white at reduced opacity (hairlines, muted text) — no second hue,
+   no gradients as decoration, no glow. Radii are zero everywhere: structure
+   comes from hairlines and grid gaps, never from a card with a shadow.
+--------------------------------------------------------------------------- */
+@theme {
+  --color-ground: #0a0a0a;
+  --color-ground-raised: #0f0f11;
+  --color-panel: #18181b;
+  --color-ink: #ffffff;
+  --color-muted: #71717a;
+  --color-indigo: #6366f1;
+  --color-indigo-press: #4338ca;
+
+  --font-ui: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-data: var(--font-jetbrains-mono), ui-monospace, monospace;
+
+  --radius-none: 0px;
+}
+
+/* --------------------------------------------------------------------------
+   Base
+--------------------------------------------------------------------------- */
+html {
+  background-color: var(--color-ground);
+}
+
+body {
+  background-color: var(--color-ground);
+  color: var(--color-ink);
+  font-family: var(--font-ui);
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 1px solid var(--color-indigo);
+  outline-offset: 2px;
+}
+
+/* Tabular figures everywhere a number changes in place, so counters don't
+   shift the layout as they tick. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* The mono voice for every label, eyebrow, chip and footer line — 11px,
+   uppercase, wide tracking, light weight. The only other typographic voice
+   on the page besides body text at scale. */
+.mono-label {
+  font-family: var(--font-data);
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* --------------------------------------------------------------------------
+   The coach's reply. One grotesque doing everything by scale — larger and
+   looser than interface text, nothing else marks it as a different voice.
+--------------------------------------------------------------------------- */
+.coach-prose {
+  font-family: var(--font-ui);
+  font-weight: 300;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--color-ink);
+}
+
+.coach-prose > * + * {
+  margin-top: 0.85em;
+}
+
+.coach-prose ul,
+.coach-prose ol {
+  padding-inline-start: 1.35em;
+}
+
+.coach-prose ul {
+  list-style: disc;
+}
+
+.coach-prose ol {
+  list-style: decimal;
+}
+
+.coach-prose li + li {
+  margin-top: 0.3em;
+}
+
+.coach-prose li::marker {
+  color: var(--color-muted);
+}
+
+.coach-prose strong {
+  font-weight: 400;
+}
+
+.coach-prose em {
+  font-style: italic;
+}
+
+.coach-prose h1,
+.coach-prose h2,
+.coach-prose h3,
+.coach-prose h4 {
+  font-family: var(--font-data);
+  font-size: 0.6875rem;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-top: 1.5em;
+}
+
+.coach-prose code {
+  font-family: var(--font-data);
+  font-size: 0.875em;
+  background-color: var(--color-panel);
+  padding: 0.1em 0.35em;
+}
+
+.coach-prose pre {
+  font-family: var(--font-data);
+  font-size: 0.8125rem;
+  background-color: var(--color-panel);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.75rem 0.9rem;
+  overflow-x: auto;
+}
+
+.coach-prose pre code {
+  background: none;
+  padding: 0;
+}
+
+.coach-prose a {
+  color: var(--color-indigo);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.coach-prose blockquote {
+  border-inline-start: 1px solid rgba(255, 255, 255, 0.1);
+  padding-inline-start: 0.9em;
+  color: var(--color-muted);
+}
+
+.coach-prose hr {
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 1.4em 0;
+}
+
+.coach-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+}
+
+.coach-prose th,
+.coach-prose td {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.4em 0.6em;
+  text-align: start;
+}
+
+/* --------------------------------------------------------------------------
+   Motion. One orchestrated moment (closing a set) and two quiet ones.
+--------------------------------------------------------------------------- */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes rep-fill {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes set-close {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes label-swap {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-rise {
+  animation: rise 150ms ease-out both;
+}
+
+.animate-rep-fill {
+  transform-origin: bottom;
+  animation: rep-fill 220ms ease-out both;
+}
+
+.animate-set-close {
+  animation: set-close 900ms ease-out 2;
+}
+
+.animate-label-swap {
+  animation: label-swap 320ms ease-out both;
+}
+
+.breathe-dot {
+  animation: breathe 1400ms ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .animate-rep-fill,
+  .animate-set-close,
+  .animate-label-swap,
+  .breathe-dot {
+    animation: none !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
